@@ -1,8 +1,7 @@
 """AI классификация сообщений с Gemini"""
 
 import json
-from google import genai
-from google.genai import types
+import google.generativeai as genai
 
 _client = None
 
@@ -75,14 +74,13 @@ def classify(message: str, model: str, api_key: str) -> dict:
     """Классифицирует сообщение через AI"""
     global _client
     if _client is None:
-        _client = genai.Client(api_key=api_key)
+        genai.configure(api_key=api_key)
+        _client = genai.GenerativeModel(model)
     
-    resp = _client.models.generate_content(
-        model=model,
-        contents=PROMPT + message,
-        config=types.GenerateContentConfig(
+    resp = _client.generate_content(
+        PROMPT + message,
+        generation_config=genai.GenerationConfig(
             response_mime_type="application/json",
-            response_schema=SCHEMA,
             temperature=0,
         ),
     )
